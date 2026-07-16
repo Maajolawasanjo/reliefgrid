@@ -29,11 +29,11 @@ ReliefGrid continuously ingests incident updates, retrieves past post-disaster l
 * **License**: Fully open-source under the **MIT License** (visible in root `LICENSE`).
 
 ### 2. Functional Application Demo
-* **Live Web App**: [https://reliefgrid.vercel.app](https://reliefgrid.vercel.app)
+* **Live Web URL**: [https://reliefgrid.vercel.app/](https://reliefgrid.vercel.app/)
 * **Backend API Docs**: [http://localhost:8000/docs](http://localhost:8000/docs) (OpenAPI / Swagger)
 
 ### 3. Video Demonstration (Under 3 Minutes)
-* **Video Link**: [https://youtu.net/reliefgrid-hackathon-demo](https://youtu.net/reliefgrid-hackathon-demo)
+* **Video Link**: [https://youtu.be/reliefgrid-hackathon-demo](https://youtu.be/reliefgrid-hackathon-demo)
 * **Demonstration Content**: Shows dynamic incident creation, real-time CockroachDB `pgvector` RAG query execution, AWS Bedrock specialist agent reasoning, and self-healing watchdog task recovery.
 
 ---
