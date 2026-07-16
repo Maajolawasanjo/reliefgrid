@@ -1,0 +1,26 @@
+# 🔒 CODEOWNERS for ReliefGrid
+# Automatically assigns code reviews for pull requests affecting specific subsystems.
+
+# Global default owner
+* @exploitx maajolawasanjo@gmail.com
+
+# Backend API & Autonomous Agents
+/apps/api/ @exploitx maajolawasanjo@gmail.com
+/apps/api/app/agents/ @exploitx maajolawasanjo@gmail.com
+/apps/api/app/core/ @exploitx maajolawasanjo@gmail.com
+
+# Database Schemas & CockroachDB Vector Migrations
+/database/ @exploitx maajolawasanjo@gmail.com
+/apps/api/app/models/ @exploitx maajolawasanjo@gmail.com
+
+# Next.js Command Center & Web Client
+/apps/web/ @exploitx maajolawasanjo@gmail.com
+
+# System Security & Exception Infrastructure
+/SECURITY.md @exploitx maajolawasanjo@gmail.com
+/apps/api/app/exceptions/ @exploitx maajolawasanjo@gmail.com
+
+# Workflows & CI/CD
+/.github/ @exploitx maajolawasanjo@gmail.com
+/Dockerfile @exploitx maajolawasanjo@gmail.com
+/docker-compose.yml @exploitx maajolawasanjo@gmail.com

@@ -1,0 +1,140 @@
+@import url('https://fonts.cdnfonts.com/css/aspekta');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* ── Official color tokens ───────────────────────────────── */
+    --rg-color-text: #CBD5E1;
+    --rg-color-technology: #9AF376;
+    --rg-color-urgency: #FF6B00;
+    --rg-color-slate: #162531;
+    --rg-color-background: #0B131A;
+    --rg-color-surface: #162531;
+    --rg-color-border: #233747;
+    --rg-color-border-subtle: rgba(35, 55, 71, 0.6);
+    --background: var(--rg-color-background);
+    --foreground: var(--rg-color-text);
+
+    /* ── Strict Font Family: Only Aspekta and sans-serif ─────── */
+    --font-body: 'Aspekta', sans-serif;
+    --font-mono: 'Aspekta', sans-serif;
+
+    /* ── Radius tokens ───────────────────────────────────────── */
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 14px;
+    --radius-xl: 18px;
+    --radius-2xl: 24px;
+
+    /* ── Transition speeds ───────────────────────────────────── */
+    --transition-fast: 120ms ease;
+    --transition-base: 200ms ease;
+    --transition-slow: 350ms ease;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    text-rendering: optimizeLegibility;
+    -webkit-text-size-adjust: 100%;
+    font-size: 16px;
+  }
+
+  body {
+    background-color: var(--rg-color-background);
+    color: var(--rg-color-text);
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+    line-height: 1.6;
+  }
+
+  /* Headings use Aspekta by default */
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-body);
+    font-weight: 800;
+    text-wrap: balance;
+    line-height: 1.25;
+    color: #F8FAFC;
+  }
+
+  /* Code and pre blocks also use Aspekta */
+  code, pre, kbd, samp {
+    font-family: var(--font-body);
+  }
+
+  /* Focus visible ring — keyboard accessible */
+  :focus-visible {
+    outline: 2px solid #9AF376;
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+  }
+
+  /* Custom selection */
+  ::selection {
+    background-color: rgba(154, 243, 118, 0.18);
+    color: #f1f5f9;
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--rg-color-background); }
+  ::-webkit-scrollbar-thumb {
+    background: rgba(154, 243, 118, 0.12);
+    border-radius: 99px;
+    border: 1px solid var(--rg-color-background);
+  }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(154, 243, 118, 0.28); }
+}
+
+/* ── Keyframe animations ─────────────────────────────────────────────────── */
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position:  200% 0; }
+}
+
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slide-down {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes scale-in {
+  from { opacity: 0; transform: scale(0.96); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+/* ── Utility classes ─────────────────────────────────────────────────────── */
+@layer utilities {
+  .bg-tactical-grid {
+    background-size: 24px 24px;
+    background-image:
+      linear-gradient(to right,  rgba(154, 243, 118, 0.03) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(154, 243, 118, 0.03) 1px, transparent 1px);
+  }
+
+  .bg-dot-grid {
+    background-image: radial-gradient(circle, rgba(154, 243, 118, 0.06) 1px, transparent 1px);
+    background-size: 20px 20px;
+  }
+
+  .font-body     { font-family: var(--font-body); }
+  .font-display  { font-family: var(--font-body); font-weight: 900; letter-spacing: -0.02em; }
+
+  /* Card base */
+  .card-base {
+    @apply rounded-2xl border border-slate-800 bg-slate-900/80 transition-all;
+  }
+}

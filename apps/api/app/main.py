@@ -1,0 +1,46 @@
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
+from slowapi.util import get_remote_address
+from app.core.config import settings
+from app.api.v1.router import api_router
+from app.exceptions.handlers import register_exception_handlers
+
+limiter = Limiter(key_func=get_remote_address)
+
+app = FastAPI(
+    title=settings.APP_NAME,
+    openapi_url=f"{settings.API_PREFIX}/openapi.json",
+    docs_url=f"{settings.API_PREFIX}/docs",
+    redoc_url=f"{settings.API_PREFIX}/redoc",
+    version=settings.APP_VERSION,
+)
+
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
+# CORS
+if settings.CORS_ORIGINS:
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=[str(origin) for origin in settings.CORS_ORIGINS],
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+
+# Register unified exception handlers (catches everything, no per-endpoint formatting)
+register_exception_handlers(app)
+
+app.include_router(api_router, prefix=settings.API_PREFIX)
+
+
+@app.get("/")
+def root():
+    return {
+        "message": "ReliefGrid Production API Gateway Online",
+        "docs": f"{settings.API_PREFIX}/docs",
+        "version": settings.APP_VERSION,
+    }
+

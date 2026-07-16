@@ -1,0 +1,5 @@
+export const APP_CONSTANTS = {
+  APP_NAME: 'ReliefGrid',
+  API_VERSION: 'v1',
+  DEFAULT_SIMILARITY_THRESHOLD: 0.70,
+};

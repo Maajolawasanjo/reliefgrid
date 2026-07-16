@@ -1,0 +1,24 @@
+cff-version: 1.2.0
+title: "ReliefGrid: Autonomous Emergency Response Platform Engine"
+message: "If you use or cite this software in academic literature, disaster management research, or technical benchmarks, please cite it as below."
+type: software
+authors:
+  - family-names: Lawasanjo
+    given-names: Ma'ajo
+    email: maajolawasanjo@gmail.com
+    country: NG
+repository-code: "https://github.com/Maajolawasanjo/reliefgrid"
+abstract: "ReliefGrid is an enterprise-grade autonomous multi-agent disaster coordination platform combining CockroachDB distributed transactional vector memory (pgvector), AWS Bedrock Claude 3 foundation agents, and OpenStreetMap/OSRM GIS pathfinding to dynamically resolve catastrophic crisis events."
+keywords:
+  - disaster response
+  - multi-agent system
+  - autonomous AI
+  - CockroachDB
+  - vector memory
+  - pgvector
+  - AWS Bedrock
+  - emergency management
+  - GIS pathfinding
+license: MIT
+version: 1.0.0-rc1
+date-released: "2026-07-16"

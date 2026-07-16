@@ -1,0 +1,7 @@
+version: '3.8'
+services:
+  api:
+    volumes:
+      - ./apps/api:/app/apps/api
+      - ./agents:/app/agents
+      - ./database:/app/database
