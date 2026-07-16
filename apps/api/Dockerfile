@@ -1,9 +1,8 @@
-# Multi-Stage Production Dockerfile for ReliefGrid FastAPI Backend Service
+# Subfolder Production Dockerfile for Railway / Render (apps/api subfolder context)
 FROM python:3.11-slim AS builder
 
 WORKDIR /app
 
-# Install system compilation dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     libpq-dev \
@@ -11,24 +10,18 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements file (supports both root directory context and apps/api subfolder context)
-COPY apps/api/requirements.txt* requirements.txt* ./
+COPY requirements.txt .
 RUN pip install --no-cache-dir --user -r requirements.txt
 
-# Final minimal runtime image
 FROM python:3.11-slim AS runner
 
 WORKDIR /app
 
-# Copy python dependencies from builder stage
 COPY --from=builder /root/.local /root/.local
-
-# Copy application code
-COPY apps/api /app/apps/api
-COPY database /app/database
+COPY app ./app
 
 ENV PATH=/root/.local/bin:$PATH
-ENV PYTHONPATH=/app/apps/api
+ENV PYTHONPATH=/app
 ENV PYTHONUNBUFFERED=1
 ENV PORT=8000
 
