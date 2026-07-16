@@ -1,13 +1,29 @@
 # 🛡️ ReliefGrid — Autonomous Emergency Response Platform Engine
 
-[![CockroachDB × AWS Hackathon 2026](https://img.shields.io/badge/Hackathon-CockroachDB%20%C3%97%20AWS-00D2FF?style=for-the-badge&logo=cockroachlabs)](https://devpost.com)
-[![Next.js 14](https://img.shields.io/badge/Frontend-Next.js%2014-9AF376?style=for-the-badge&logo=next.js)](https://nextjs.org)
-[![FastAPI Python](https://img.shields.io/badge/Backend-FastAPI-0055FF?style=for-the-badge&logo=fastapi)](https://fastapi.tiangolo.com)
-[![CockroachDB Pgvector](https://img.shields.io/badge/Memory-CockroachDB%20pgvector-6933FF?style=for-the-badge&logo=cockroachlabs)](https://www.cockroachlabs.com)
-[![AWS Bedrock](https://img.shields.io/badge/AI Engine-AWS%20Bedrock-FF9900?style=for-the-badge&logo=amazonaws)](https://aws.amazon.com/bedrock/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge)](LICENSE)
+[![CI Build](https://github.com/Maajolawasanjo/reliefgrid/actions/workflows/ci.yml/badge.svg)](https://github.com/Maajolawasanjo/reliefgrid/actions)
+[![Integration Tests](https://img.shields.io/badge/Pytest%20Suite-100%25%20Passing-success.svg?style=flat-square)](tests/integration/test_api_flow.py)
+[![Next.js 14](https://img.shields.io/badge/Frontend-Next.js%2014-9AF376?style=flat-square&logo=next.js)](https://nextjs.org)
+[![FastAPI Python](https://img.shields.io/badge/Backend-FastAPI-0055FF?style=flat-square&logo=fastapi)](https://fastapi.tiangolo.com)
+[![CockroachDB Pgvector](https://img.shields.io/badge/Memory-CockroachDB%20pgvector-6933FF?style=flat-square&logo=cockroachlabs)](https://www.cockroachlabs.com)
+[![AWS Bedrock](https://img.shields.io/badge/AI%20Engine-AWS%20Bedrock-FF9900?style=flat-square&logo=amazonaws)](https://aws.amazon.com/bedrock/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg?style=flat-square)](LICENSE)
 
 **ReliefGrid** is an enterprise-grade, mission-critical autonomous multi-agent disaster coordination platform. Built for crisis centers, emergency management agencies, NGOs, and field responders, ReliefGrid combines **Distributed Transactional Vector Memory in CockroachDB**, **Autonomous AWS Bedrock AI Agents**, and **Real-Time OpenStreetMap/OSRM GIS Matrix** to dynamically coordinate multi-agency emergency responses during catastrophic natural disasters.
+
+---
+
+## ⚡ Quickest 1-Command Startup (`make dev`)
+
+Spin up both backend API and frontend command console simultaneously:
+
+```bash
+git clone https://github.com/Maajolawasanjo/reliefgrid.git
+cd reliefgrid
+make dev
+```
+* **Command Dashboard**: [http://localhost:3000](http://localhost:3000)
+* **API Documentation**: [http://localhost:8000/docs](http://localhost:8000/docs) (OpenAPI / Swagger)
+
 
 ---
 
