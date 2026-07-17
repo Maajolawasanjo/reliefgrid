@@ -7,7 +7,7 @@ name = "reliefgrid"
 version = "1.0.0-rc1"
 description = "Autonomous Multi-Agent Crisis Platform Engine backed by CockroachDB Serverless Vector Memory and AWS Bedrock"
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.11,<4.0"
 license = { text = "MIT" }
 authors = [
   { name = "Ma'ajo Lawasanjo", email = "maajolawasanjo@gmail.com" }
