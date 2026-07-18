@@ -1,9 +1,18 @@
 import os
+import sys
 import uuid
+
+REPO_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+API_ROOT = os.path.join(REPO_ROOT, "apps", "api")
+if API_ROOT not in sys.path:
+    sys.path.insert(0, API_ROOT)
+if REPO_ROOT not in sys.path:
+    sys.path.insert(0, REPO_ROOT)
+
 from sqlalchemy.orm import Session
 from database.connection import engine, SessionLocal
-from apps.api.app.models.auth import Organization, Role, User
-from apps.api.app.core.security import get_password_hash
+from app.models.auth import Organization, Role, User
+from app.core.security import get_password_hash
 
 def seed_initial_auth():
     db: Session = SessionLocal()
