@@ -24,16 +24,16 @@ user_roles = Table(
 
 class Organization(Base, TimestampMixin):
     __tablename__ = "organizations"
+    __table_args__ = {"extend_existing": True}
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     slug: Mapped[str] = mapped_column(String(255), unique=True, nullable=False)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
 
-    users: Mapped[List["User"]] = relationship("app.models.auth.User", back_populates="organization")
-
 class User(Base, TimestampMixin):
     __tablename__ = "users"
+    __table_args__ = {"extend_existing": True}
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     email: Mapped[str] = mapped_column(String(255), unique=True, index=True, nullable=False)
@@ -42,31 +42,36 @@ class User(Base, TimestampMixin):
     organization_id: Mapped[str] = mapped_column(String(36), ForeignKey("organizations.id"), nullable=False)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
 
-    organization: Mapped["Organization"] = relationship("app.models.auth.Organization", back_populates="users")
-    roles: Mapped[List["Role"]] = relationship("app.models.auth.Role", secondary=user_roles, back_populates="users")
-    refresh_tokens: Mapped[List["RefreshToken"]] = relationship("app.models.auth.RefreshToken", back_populates="user", cascade="all, delete-orphan")
+    organization: Mapped[Organization] = relationship(Organization, back_populates="users")
 
-class Role(Base):
-    __tablename__ = "roles"
-
-    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
-    name: Mapped[str] = mapped_column(String(50), unique=True, nullable=False) # ADMIN, COORDINATOR, RESPONDER
-    description: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
-
-    permissions: Mapped[List["Permission"]] = relationship("app.models.auth.Permission", secondary=role_permissions, back_populates="roles")
-    users: Mapped[List["User"]] = relationship("app.models.auth.User", secondary=user_roles, back_populates="roles")
+Organization.users = relationship(User, back_populates="organization")
 
 class Permission(Base):
     __tablename__ = "permissions"
+    __table_args__ = {"extend_existing": True}
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     code: Mapped[str] = mapped_column(String(100), unique=True, nullable=False)
     description: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
 
-    roles: Mapped[List["Role"]] = relationship("app.models.auth.Role", secondary=role_permissions, back_populates="permissions")
+class Role(Base):
+    __tablename__ = "roles"
+    __table_args__ = {"extend_existing": True}
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    name: Mapped[str] = mapped_column(String(50), unique=True, nullable=False) # ADMIN, COORDINATOR, RESPONDER
+    description: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+
+    permissions: Mapped[List[Permission]] = relationship(Permission, secondary=role_permissions, back_populates="roles")
+
+Permission.roles = relationship(Role, secondary=role_permissions, back_populates="permissions")
+
+User.roles = relationship(Role, secondary=user_roles, back_populates="users")
+Role.users = relationship(User, secondary=user_roles, back_populates="roles")
 
 class RefreshToken(Base):
     __tablename__ = "refresh_tokens"
+    __table_args__ = {"extend_existing": True}
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     token: Mapped[str] = mapped_column(String(512), unique=True, index=True, nullable=False)
@@ -74,10 +79,13 @@ class RefreshToken(Base):
     expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     revoked: Mapped[bool] = mapped_column(Boolean, default=False)
 
-    user: Mapped["User"] = relationship("app.models.auth.User", back_populates="refresh_tokens")
+    user: Mapped[User] = relationship(User, back_populates="refresh_tokens")
+
+User.refresh_tokens = relationship(RefreshToken, back_populates="user", cascade="all, delete-orphan")
 
 class AuditLog(Base):
     __tablename__ = "audit_logs"
+    __table_args__ = {"extend_existing": True}
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     user_id: Mapped[Optional[str]] = mapped_column(String(36), nullable=True)
