@@ -48,7 +48,12 @@ def vector_search_memories(
                 "created_at": memory.created_at.isoformat()
             })
 
+    # Sort by descending similarity score
+    results.sort(key=lambda x: x["similarity_score"], reverse=True)
+    return results[:payload.limit]
+
 class MemoryCreate(BaseModel):
+
     memory_type: str
     content: str
     incident_id: Optional[str] = None
