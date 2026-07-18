@@ -15,8 +15,9 @@ export default function LoginPage() {
   const { login, launchDemo } = useAuth();
   const router = useRouter();
 
-  const handleLaunchDemo = () => {
-    launchDemo();
+  const handleLaunchDemo = async () => {
+    setIsSubmitting(true);
+    await launchDemo();
     router.push('/incidents');
   };
 

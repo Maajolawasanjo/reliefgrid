@@ -12,6 +12,44 @@ from app.api.deps import get_current_user
 router = APIRouter()
 limiter = Limiter(key_func=get_remote_address)
 
+@router.post("/demo-token", response_model=TokenResponse)
+def demo_token(db: Session = Depends(get_db)):
+    """Public Instant Demo Endpoint: returns a valid signed JWT for admin@reliefgrid.gov."""
+    user = db.query(User).filter(User.email == "admin@reliefgrid.gov").first()
+    if not user:
+        from app.models.auth import Organization
+        from app.core.security import get_password_hash
+        import uuid
+        org = db.query(Organization).filter(Organization.slug == "nema-core").first()
+        if not org:
+            org = Organization(id=str(uuid.uuid4()), name="National Emergency Management Agency", slug="nema-core")
+            db.add(org)
+            db.commit()
+            db.refresh(org)
+        user = User(
+            id=str(uuid.uuid4()),
+            email="admin@reliefgrid.gov",
+            hashed_password=get_password_hash("AdminPassword123!"),
+            full_name="ReliefGrid System Administrator",
+            organization_id=org.id
+        )
+        db.add(user)
+        db.commit()
+        db.refresh(user)
+
+    access_token = create_access_token(data={"sub": user.id, "org": user.organization_id})
+    refresh_token = create_refresh_token(data={"sub": user.id})
+    roles_list = [r.name for r in user.roles] if hasattr(user, 'roles') and user.roles else ["ADMIN", "COORDINATOR"]
+
+    return TokenResponse(
+        access_token=access_token,
+        refresh_token=refresh_token,
+        token_type="bearer",
+        user_id=user.id,
+        email=user.email,
+        roles=roles_list
+    )
+
 @router.post("/login", response_model=TokenResponse)
 def login(
     request: Request,

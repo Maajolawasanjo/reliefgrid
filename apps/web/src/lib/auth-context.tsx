@@ -76,11 +76,32 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
-  const launchDemo = () => {
-    const demoToken = 'demo-interactive-token';
-    setToken(demoToken);
+  const launchDemo = async () => {
+    try {
+      const res = await fetch(`${env.apiUrl}/auth/demo-token`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setToken(data.access_token);
+        localStorage.setItem('reliefgrid_token', data.access_token);
+        setUser({
+          id: data.user_id,
+          email: data.email,
+          fullName: 'ReliefGrid Administrator (Demo)',
+          organizationId: 'nema-core',
+          roles: data.roles || ['ADMIN', 'COORDINATOR'],
+        });
+        return;
+      }
+    } catch (err) {
+      console.warn('Backend demo-token notice:', err);
+    }
+    // Fallback if backend network is unreachable
+    setToken('demo-interactive-token');
     setUser(DEMO_USER);
-    localStorage.setItem('reliefgrid_token', demoToken);
+    localStorage.setItem('reliefgrid_token', 'demo-interactive-token');
   };
 
   const login = async (email: string, pass: string) => {
