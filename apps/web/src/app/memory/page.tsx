@@ -194,7 +194,16 @@ export default function MemoryExplorerPage() {
   const [newContent, setNewContent] = useState('');
   const [isCreating, setIsCreating] = useState(false);
 
+  useEffect(() => {
+    if (!isLoading && !user) {
+      router.push('/login');
+    } else if (token) {
+      loadAllMemories();
+    }
+  }, [user, isLoading, token, loadAllMemories]);
+
   const handleSearch = useCallback(async (searchQuery: string) => {
+
     if (!searchQuery.trim() || !token) return;
     setIsSearching(true);
     setError(null);
