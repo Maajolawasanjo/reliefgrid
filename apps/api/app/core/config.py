@@ -9,7 +9,7 @@ class Settings(BaseSettings):
     DEBUG_MODE: bool = True
     
     API_PREFIX: str = "/api/v1"
-    CORS_ORIGINS: List[str] = ["http://localhost:3000"]
+    CORS_ORIGINS: List[str] = ["*"]
     
     # Database
     DATABASE_URL: str = "postgresql://root@localhost:26257/reliefgrid?sslmode=disable"

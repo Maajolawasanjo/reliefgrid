@@ -255,12 +255,13 @@ def register_exception_handlers(app: FastAPI) -> None:
             status_code=500,
             content=_build_error_response(
                 code=ErrorCode.SYS_999,
-                message="An unexpected platform error occurred. The engineering team has been notified.",
+                message=f"Unhandled {exc.__class__.__name__}: {exc}" if settings.DEBUG_MODE else "An unexpected platform error occurred. The engineering team has been notified.",
                 category="Platform",
                 severity=ErrorSeverity.FATAL.value,
                 http_status=500,
                 recoverable=False,
                 trace_id=trace_id,
+                detail=str(exc) if settings.DEBUG_MODE else None,
             ),
             headers={"X-Trace-ID": trace_id},
         )
