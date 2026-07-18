@@ -30,14 +30,26 @@ def on_startup():
         print(f"⚠️ Startup seed notice: {e}")
 
 # CORS
+origins = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "https://reliefgrid.vercel.app",
+    "https://reliefgrid-production.up.railway.app",
+]
+
 if settings.CORS_ORIGINS:
-    app.add_middleware(
-        CORSMiddleware,
-        allow_origins=[str(origin) for origin in settings.CORS_ORIGINS],
-        allow_credentials=True,
-        allow_methods=["*"],
-        allow_headers=["*"],
-    )
+    for o in settings.CORS_ORIGINS:
+        if o != "*" and o not in origins:
+            origins.append(str(o))
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_origin_regex=r"https://.*\.vercel\.app|https://.*\.railway\.app",
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Register unified exception handlers (catches everything, no per-endpoint formatting)
 register_exception_handlers(app)
