@@ -15,40 +15,27 @@ limiter = Limiter(key_func=get_remote_address)
 @router.post("/demo-token", response_model=TokenResponse)
 def demo_token(db: Session = Depends(get_db)):
     """Public Instant Demo Endpoint: returns a valid signed JWT for admin@reliefgrid.gov."""
-    user = db.query(User).filter(User.email == "admin@reliefgrid.gov").first()
-    if not user:
-        from app.models.auth import Organization
-        from app.core.security import get_password_hash
-        import uuid
-        org = db.query(Organization).filter(Organization.slug == "nema-core").first()
-        if not org:
-            org = Organization(id=str(uuid.uuid4()), name="National Emergency Management Agency", slug="nema-core")
-            db.add(org)
-            db.commit()
-            db.refresh(org)
-        user = User(
-            id=str(uuid.uuid4()),
-            email="admin@reliefgrid.gov",
-            hashed_password=get_password_hash("AdminPassword123!"),
-            full_name="ReliefGrid System Administrator",
-            organization_id=org.id
-        )
-        db.add(user)
-        db.commit()
-        db.refresh(user)
+    try:
+        user = db.query(User).filter(User.email == "admin@reliefgrid.gov").first()
+        user_id = user.id if user else "65e4d47f-3c33-4a5c-8857-31cd3008878f"
+        org_id = user.organization_id if user else "0eac533c-c914-46eb-9de8-dc0b43350b81"
+    except Exception as err:
+        print(f"⚠️ Demo token DB query notice: {err}")
+        user_id = "65e4d47f-3c33-4a5c-8857-31cd3008878f"
+        org_id = "0eac533c-c914-46eb-9de8-dc0b43350b81"
 
-    access_token = create_access_token(data={"sub": user.id, "org": user.organization_id})
-    refresh_token = create_refresh_token(data={"sub": user.id})
-    roles_list = [r.name for r in user.roles] if hasattr(user, 'roles') and user.roles else ["ADMIN", "COORDINATOR"]
+    access_token = create_access_token(data={"sub": user_id, "org": org_id})
+    refresh_token = create_refresh_token(data={"sub": user_id})
 
     return TokenResponse(
         access_token=access_token,
         refresh_token=refresh_token,
         token_type="bearer",
-        user_id=user.id,
-        email=user.email,
-        roles=roles_list
+        user_id=user_id,
+        email="admin@reliefgrid.gov",
+        roles=["ADMIN", "COORDINATOR"]
     )
+
 
 @router.post("/login", response_model=TokenResponse)
 def login(
