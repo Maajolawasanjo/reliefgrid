@@ -12,14 +12,8 @@ export default function LoginPage() {
   const [password, setPassword] = useState('AdminPassword123!');
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { login, launchDemo } = useAuth();
+  const { login } = useAuth();
   const router = useRouter();
-
-  const handleLaunchDemo = async () => {
-    setIsSubmitting(true);
-    await launchDemo();
-    router.push('/incidents');
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,9 +24,7 @@ export default function LoginPage() {
       await login(email, password);
       router.push('/incidents');
     } catch (err: any) {
-      // Graceful fallback to demo mode
-      launchDemo();
-      router.push('/incidents');
+      setError(err.message || 'Invalid credentials');
     } finally {
       setIsSubmitting(false);
     }
@@ -65,45 +57,14 @@ export default function LoginPage() {
         <div className="flex flex-col items-center text-center pt-2">
           <FullLogo className="flex flex-col items-center gap-2" iconSize="h-14 w-14" textClass="text-2xl" subtitle={true} />
           <p className="mt-3 text-xs font-bold uppercase tracking-wider text-slate-400 font-mono">
-            Emergency Operations & Public Access
+            Security Gateway & Operations Access
           </p>
         </div>
 
-        {/* ── PATH 1: PRIMARY INTERACTIVE DEMO CTA ── */}
-        <div className="p-5 rounded-2xl bg-gradient-to-br from-slate-950 to-slate-900 border border-[#9AF376]/40 shadow-[0_0_30px_rgba(154,243,118,0.15)] space-y-3.5">
+        {/* Demo Credentials Helper Pill */}
+        <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-1.5 text-xs">
           <div className="flex items-center justify-between">
-            <span className="font-mono text-xs font-extrabold uppercase tracking-wider text-[#9AF376] flex items-center gap-2">
-              <span className="h-2 w-2 rounded-full bg-[#9AF376] animate-ping"></span>
-              Public Interactive Demo
-            </span>
-            <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-[#9AF376]/10 text-[#9AF376] border border-[#9AF376]/30">
-              Instant Access
-            </span>
-          </div>
-          <p className="text-xs text-slate-300 leading-relaxed font-sans">
-            Explore live disaster intelligence, autonomous multi-agent coordination, and vector memory recall without creating an account.
-          </p>
-          <button
-            type="button"
-            onClick={handleLaunchDemo}
-            className="w-full rounded-xl bg-gradient-to-r from-[#9AF376] via-[#00D2FF] to-[#9AF376] bg-[length:200%_auto] hover:bg-right px-4 py-3.5 text-xs font-black text-slate-950 transition-all shadow-[0_0_20px_rgba(154,243,118,0.3)] focus:outline-none flex items-center justify-center gap-2 uppercase tracking-wider font-mono transform active:scale-[0.99]"
-          >
-            <Icon name="incident" size={16} className="text-slate-950" />
-            <span>Launch Interactive Demo</span>
-          </button>
-        </div>
-
-        {/* ── DIVIDER ── */}
-        <div className="relative flex py-1 items-center">
-          <div className="flex-grow border-t border-slate-800"></div>
-          <span className="flex-shrink mx-4 text-[10px] font-mono uppercase tracking-widest text-slate-500 font-bold">OR OPERATOR SIGN IN</span>
-          <div className="flex-grow border-t border-slate-800"></div>
-        </div>
-
-        {/* ── PATH 2: OPERATOR CREDENTIAL SIGN IN ── */}
-        <div className="p-4 rounded-xl bg-slate-950/70 border border-slate-800 space-y-1.5 text-xs">
-          <div className="flex items-center justify-between">
-            <span className="font-mono font-extrabold text-slate-400 uppercase tracking-wider text-[11px]">Operator Credentials</span>
+            <span className="font-mono font-extrabold text-[#9AF376] uppercase tracking-wider text-[11px]">Demo Environment Credentials</span>
             <button
               type="button"
               onClick={handleQuickDemoFill}
@@ -112,8 +73,8 @@ export default function LoginPage() {
               Fill Credentials
             </button>
           </div>
-          <div className="font-mono text-slate-400 text-xs">Email: <span className="text-slate-200 font-bold">admin@reliefgrid.gov</span></div>
-          <div className="font-mono text-slate-400 text-xs">Pass: <span className="text-slate-200 font-bold">AdminPassword123!</span></div>
+          <div className="font-mono text-slate-300 text-xs">Email: <span className="text-slate-100 font-bold">admin@reliefgrid.gov</span></div>
+          <div className="font-mono text-slate-300 text-xs">Pass: <span className="text-slate-100 font-bold">AdminPassword123!</span></div>
         </div>
 
         {error && (
@@ -122,29 +83,29 @@ export default function LoginPage() {
           </div>
         )}
 
-        <form className="space-y-4" onSubmit={handleSubmit}>
-          <div className="space-y-3">
+        <form className="space-y-5" onSubmit={handleSubmit}>
+          <div className="space-y-4">
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1 font-mono">
+              <label className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5 font-mono">
                 Operator Email Address
               </label>
               <input
                 type="email"
                 required
-                className="w-full rounded-xl border border-slate-800 bg-slate-950 px-4 py-2.5 text-sm text-slate-100 placeholder-slate-600 focus:border-[#00D2FF] focus:outline-none focus:ring-1 focus:ring-[#00D2FF] transition-all font-mono"
+                className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-slate-100 placeholder-slate-500 focus:border-[#00D2FF] focus:outline-none focus:ring-1 focus:ring-[#00D2FF] transition-all font-mono"
                 placeholder="admin@reliefgrid.gov"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
             </div>
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1 font-mono">
+              <label className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5 font-mono">
                 Security Password
               </label>
               <input
                 type="password"
                 required
-                className="w-full rounded-xl border border-slate-800 bg-slate-950 px-4 py-2.5 text-sm text-slate-100 placeholder-slate-600 focus:border-[#00D2FF] focus:outline-none focus:ring-1 focus:ring-[#00D2FF] transition-all font-mono"
+                className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-slate-100 placeholder-slate-500 focus:border-[#00D2FF] focus:outline-none focus:ring-1 focus:ring-[#00D2FF] transition-all font-mono"
                 placeholder="••••••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -155,13 +116,13 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full rounded-xl bg-slate-800 hover:bg-slate-700 px-4 py-3 text-xs font-bold text-slate-200 transition-all border border-slate-700 focus:outline-none disabled:opacity-50 flex items-center justify-center gap-2 font-mono uppercase tracking-wider"
+            className="w-full rounded-xl bg-gradient-to-r from-[#00D2FF] to-[#38bdf8] px-4 py-3.5 text-sm font-extrabold text-slate-950 hover:brightness-110 transition-all shadow-[0_0_20px_rgba(0,210,255,0.3)] focus:outline-none disabled:opacity-50 flex items-center justify-center gap-2"
           >
-            <span>{isSubmitting ? 'Authenticating...' : 'Sign In as Operator'}</span>
+            <Icon name="incident" size={16} className="text-slate-950" />
+            <span>{isSubmitting ? 'Authenticating...' : 'Sign In to Emergency Command Center'}</span>
           </button>
         </form>
       </div>
     </div>
   );
 }
-

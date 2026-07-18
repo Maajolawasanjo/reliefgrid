@@ -18,20 +18,7 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
     except Exception:
         raise AuthenticationError("Could not validate credentials")
 
-    try:
-        user = db.query(User).filter(User.id == user_id, User.is_active == True).first()
-    except Exception as err:
-        print(f"⚠️ User lookup query notice: {err}")
-        user = None
-
+    user = db.query(User).filter(User.id == user_id, User.is_active == True).first()
     if not user:
-        user = User(
-            id=user_id or "65e4d47f-3c33-4a5c-8857-31cd3008878f",
-            email="admin@reliefgrid.gov",
-            hashed_password="",
-            full_name="ReliefGrid System Administrator",
-            organization_id="0eac533c-c914-46eb-9de8-dc0b43350b81",
-            is_active=True
-        )
+        raise AuthenticationError("User account disabled or not found")
     return user
-

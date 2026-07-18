@@ -12,31 +12,6 @@ from app.api.deps import get_current_user
 router = APIRouter()
 limiter = Limiter(key_func=get_remote_address)
 
-@router.post("/demo-token", response_model=TokenResponse)
-def demo_token(db: Session = Depends(get_db)):
-    """Public Instant Demo Endpoint: returns a valid signed JWT for admin@reliefgrid.gov."""
-    try:
-        user = db.query(User).filter(User.email == "admin@reliefgrid.gov").first()
-        user_id = user.id if user else "65e4d47f-3c33-4a5c-8857-31cd3008878f"
-        org_id = user.organization_id if user else "0eac533c-c914-46eb-9de8-dc0b43350b81"
-    except Exception as err:
-        print(f"⚠️ Demo token DB query notice: {err}")
-        user_id = "65e4d47f-3c33-4a5c-8857-31cd3008878f"
-        org_id = "0eac533c-c914-46eb-9de8-dc0b43350b81"
-
-    access_token = create_access_token(data={"sub": user_id, "org": org_id})
-    refresh_token = create_refresh_token(data={"sub": user_id})
-
-    return TokenResponse(
-        access_token=access_token,
-        refresh_token=refresh_token,
-        token_type="bearer",
-        user_id=user_id,
-        email="admin@reliefgrid.gov",
-        roles=["ADMIN", "COORDINATOR"]
-    )
-
-
 @router.post("/login", response_model=TokenResponse)
 def login(
     request: Request,
