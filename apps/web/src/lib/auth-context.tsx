@@ -87,7 +87,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       });
     } catch (err: any) {
       if (err.message === 'Failed to fetch' || err.name === 'TypeError') {
-        throw new Error('Backend server unreachable at http://localhost:8000. Please verify API status.');
+        throw new Error(`Backend server unreachable at ${env.apiUrl}. Please verify API status.`);
       }
       throw err;
     }

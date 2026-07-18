@@ -1,6 +1,6 @@
 # 🛠️ ReliefGrid Root Developer Automation Makefile
 
-.PHONY: help dev dev-backend dev-frontend test lint build docker-up docker-down clean
+.PHONY: help dev dev-backend dev-frontend test lint build docker-up docker-down clean aws-push
 
 help:
 	@echo "====================================================================="
@@ -11,6 +11,7 @@ help:
 	@echo "  make lint         - Run Ruff linter and Next.js ESLint"
 	@echo "  make docker-up    - Spin up full platform via Docker Compose"
 	@echo "  make docker-down  - Stop all Docker Compose services"
+	@echo "  make aws-push     - Build & push Docker images to AWS ECR"
 	@echo "  make clean        - Remove Python bytecode and build caches"
 	@echo "====================================================================="
 
@@ -35,6 +36,9 @@ docker-up:
 docker-down:
 	@echo "🛑 Stopping Docker Containers..."
 	@docker-compose down
+
+aws-push:
+	@bash scripts/push-to-ecr.sh $(AWS_ACCOUNT_ID)
 
 clean:
 	@echo "🧹 Cleaning Cache Files..."

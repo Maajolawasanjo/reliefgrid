@@ -5,7 +5,7 @@ services:
   api:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: infrastructure/docker/Dockerfile.api
     ports:
       - "8000:8000"
     environment:
@@ -24,8 +24,8 @@ services:
   # Next.js Command Center Frontend
   web:
     build:
-      context: ./apps/web
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: apps/web/Dockerfile
     ports:
       - "3000:3000"
     environment:
