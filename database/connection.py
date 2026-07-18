@@ -10,6 +10,9 @@ db_url = os.getenv("DATABASE_URL", settings.DATABASE_URL)
 if ("postgresql://" in db_url or "postgres://" in db_url) and "cockroach" in db_url:
     db_url = db_url.replace("postgresql://", "cockroachdb://", 1).replace("postgres://", "cockroachdb://", 1)
 
+if "sslmode=verify-full" in db_url:
+    db_url = db_url.replace("sslmode=verify-full", "sslmode=require")
+
 if "sqlite" in db_url:
     engine = create_engine(db_url, connect_args={"check_same_thread": False})
 else:
@@ -19,6 +22,7 @@ else:
         max_overflow=settings.DATABASE_MAX_OVERFLOW,
         pool_pre_ping=True
     )
+
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
