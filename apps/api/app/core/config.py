@@ -12,7 +12,7 @@ class Settings(BaseSettings):
     CORS_ORIGINS: List[str] = ["*"]
     
     # Database
-    DATABASE_URL: str = "postgresql://root@localhost:26257/reliefgrid?sslmode=disable"
+    DATABASE_URL: str = "postgresql://reliefgrid_admin:9_P54mhucBO38GU69MwZNw@prize-lizard-29433.j77.aws-eu-central-1.cockroachlabs.cloud:26257/defaultdb?sslmode=verify-full"
     DATABASE_POOL_SIZE: int = 10
     DATABASE_MAX_OVERFLOW: int = 20
     

@@ -1,8 +1,9 @@
+import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, DeclarativeBase
 from apps.api.app.core.config import settings
 
-db_url = settings.DATABASE_URL
+db_url = os.getenv("DATABASE_URL", settings.DATABASE_URL)
 if ("postgresql://" in db_url or "postgres://" in db_url) and "cockroach" in db_url:
     db_url = db_url.replace("postgresql://", "cockroachdb://", 1).replace("postgres://", "cockroachdb://", 1)
 
