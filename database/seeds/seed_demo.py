@@ -417,7 +417,65 @@ def seed_demo():
         db.commit()
         print(f"   ✓ Live incident created: '{live_incident.title}' [{live_incident.id[:8]}...]")
 
+        # ── 4b. Global High-Profile Incidents (US & Europe) ───────────────────
+        global_incidents = [
+            {
+                "title": "Miami Coastal Storm Surge — Hurricane Watch",
+                "description": "Category 4 tropical storm system causing severe storm surge across Biscayne Bay and South Beach. Biscayne Boulevard inundated. Evacuation orders active for 45,000 residents across Miami-Dade coastal sectors.",
+                "severity": "CRITICAL",
+                "status": "ACTIVE",
+                "latitude": 25.7617,
+                "longitude": -80.1918,
+                "affected_population": 45000,
+            },
+            {
+                "title": "California Wildfire — Hurricane Ridge Surge",
+                "description": "Fast-moving brush fire driven by Santa Ana winds spreading rapidly along PCH corridor. 8,500 structures threatened. Emergency evacuation centers activated at Pepperdine Campus.",
+                "severity": "HIGH",
+                "status": "REPORTED",
+                "latitude": 34.0259,
+                "longitude": -118.7798,
+                "affected_population": 12500,
+            },
+            {
+                "title": "Rhine River Flash Inundation — Central Sector",
+                "description": "Unprecedented torrential rainfall across Central Europe causing Rhine river surge to exceed 8.5m mark. Low-lying logistics hubs and harbor facilities inundated.",
+                "severity": "HIGH",
+                "status": "ACTIVE",
+                "latitude": 50.9375,
+                "longitude": 6.9603,
+                "affected_population": 22000,
+            },
+        ]
+
+        for g_inc in global_incidents:
+            existing_g = db.query(Incident).filter(Incident.title == g_inc["title"]).first()
+            if not existing_g:
+                g_obj = Incident(
+                    id=str(uuid.uuid4()),
+                    title=g_inc["title"],
+                    description=g_inc["description"],
+                    severity=g_inc["severity"],
+                    status=g_inc["status"],
+                    latitude=g_inc["latitude"],
+                    longitude=g_inc["longitude"],
+                    affected_population=g_inc["affected_population"],
+                    organization_id=org.id,
+                    reporter_id=admin.id,
+                )
+                db.add(g_obj)
+                db.flush()
+                db.add(IncidentTimeline(
+                    incident_id=g_obj.id,
+                    event_type="INCIDENT_REPORTED",
+                    description=f"Global crisis report ingested by ReliefGrid Watchdog Engine for {g_inc['title']}.",
+                    actor_id=admin.id,
+                ))
+                print(f"   ✓ Global incident created: '{g_inc['title']}'")
+        db.commit()
+
         # ── 5. Create stalled agent for watchdog demo scene ────────────────────
+
         print("\nStep 5/5 — Seeding stalled agent assignment for watchdog recovery demo...")
 
         stall_plan = AgentTaskPlan(
