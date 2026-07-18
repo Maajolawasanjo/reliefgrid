@@ -1,4 +1,5 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request, Response
+from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
@@ -19,6 +20,23 @@ app = FastAPI(
 
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
+# OPTIONS Preflight Middleware (Runs before authentication & rate limiting to guarantee HTTP 200 for preflights/proxies)
+@app.middleware("http")
+async def options_preflight_middleware(request: Request, call_next):
+    if request.method == "OPTIONS":
+        origin = request.headers.get("origin", "*")
+        return Response(
+            status_code=200,
+            headers={
+                "Access-Control-Allow-Origin": origin,
+                "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS, PATCH",
+                "Access-Control-Allow-Headers": "*",
+                "Access-Control-Allow-Credentials": "true",
+                "Access-Control-Max-Age": "86400",
+            }
+        )
+    return await call_next(request)
 
 @app.on_event("startup")
 def on_startup():
@@ -58,8 +76,11 @@ app.include_router(api_router, prefix=settings.API_PREFIX)
 
 
 @app.get("/")
+@app.get("/health")
+@app.get("/api/v1/health")
 def root():
     return {
+        "status": "healthy",
         "message": "ReliefGrid Production API Gateway Online",
         "docs": f"{settings.API_PREFIX}/docs",
         "version": settings.APP_VERSION,
