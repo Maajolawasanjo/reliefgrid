@@ -148,3 +148,24 @@ def add_timeline_event(
     db.commit()
     db.refresh(timeline_event)
     return timeline_event
+
+@router.delete("/{incident_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_incident(
+    incident_id: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    incident = db.query(Incident).filter(
+        Incident.id == incident_id,
+        Incident.organization_id == current_user.organization_id
+    ).first()
+
+    if not incident:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Incident record not found")
+
+    # Delete dependent timelines and tasks
+    db.query(IncidentTimeline).filter(IncidentTimeline.incident_id == incident_id).delete()
+    db.delete(incident)
+    db.commit()
+    return None
+

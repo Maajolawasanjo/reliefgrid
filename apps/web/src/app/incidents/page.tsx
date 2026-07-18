@@ -115,6 +115,46 @@ export default function IncidentsDashboard() {
     }
   };
 
+  const handleStatusChange = async (incidentId: string, newStatus: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!token) return;
+    try {
+      const res = await fetch(`${env.apiUrl}/incidents/${incidentId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ status: newStatus }),
+      });
+      if (res.ok) {
+        fetchIncidents();
+      }
+    } catch (err) {
+      console.error('Failed to update incident status', err);
+    }
+  };
+
+  const handleDeleteIncident = async (incidentId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!token) return;
+    if (!confirm('Are you sure you want to delete this incident report?')) return;
+    try {
+      const res = await fetch(`${env.apiUrl}/incidents/${incidentId}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.ok || res.status === 204) {
+        if (selectedIncident?.id === incidentId) {
+          setSelectedIncident(null);
+        }
+        fetchIncidents();
+      }
+    } catch (err) {
+      console.error('Failed to delete incident', err);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-slate-950 p-6 md:p-8 text-slate-100 font-body">
       
@@ -245,21 +285,43 @@ export default function IncidentsDashboard() {
                     : 'border-slate-800 bg-slate-900/60 hover:border-slate-700'
                 }`}
               >
-                <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center justify-between mb-2 gap-2">
                   <span className={`rounded-full border px-2.5 py-0.5 text-xs font-extrabold uppercase font-mono ${getSeverityBadge(inc.severity)}`}>
                     {inc.severity}
                   </span>
-                  <span className="text-xs font-mono text-slate-400 font-semibold">{inc.status}</span>
+                  
+                  <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+                    <select
+                      value={inc.status}
+                      onChange={(e) => handleStatusChange(inc.id, e.target.value, e as any)}
+                      className="text-[11px] font-mono font-bold bg-slate-950 text-slate-200 border border-slate-700 rounded-md px-2 py-0.5 focus:outline-none focus:border-[#9AF376]"
+                    >
+                      <option value="REPORTED">REPORTED</option>
+                      <option value="EXECUTING">EXECUTING</option>
+                      <option value="ACTIVE">ACTIVE</option>
+                      <option value="RESOLVED">RESOLVED</option>
+                    </select>
+
+                    <button
+                      onClick={(e) => handleDeleteIncident(inc.id, e)}
+                      title="Delete Incident"
+                      className="p-1 rounded bg-red-500/10 border border-red-500/30 text-red-400 hover:bg-red-500/20 transition-all text-xs font-mono font-bold"
+                    >
+                      🗑️
+                    </button>
+                  </div>
                 </div>
                 <h3 className="text-base font-extrabold text-slate-100">{inc.title}</h3>
                 <p className="text-xs text-slate-300 font-normal mt-1.5 leading-relaxed line-clamp-2">{inc.description}</p>
-                <div className="mt-3 flex items-center gap-2 text-xs text-slate-400 font-mono">
+                <div className="mt-3 flex items-center justify-between text-xs text-slate-400 font-mono">
                   <span>📍 {inc.latitude.toFixed(2)}, {inc.longitude.toFixed(2)}</span>
+                  <span>Pop: {inc.affected_population?.toLocaleString() || 'N/A'}</span>
                 </div>
               </div>
             ))
           )}
         </div>
+
 
         {/* Right Columns: Interactive GIS Map + Agent Timeline + Recommendation Explainability */}
         <div className="lg:col-span-2 space-y-6">

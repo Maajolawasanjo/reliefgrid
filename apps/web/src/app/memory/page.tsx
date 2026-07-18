@@ -99,25 +99,45 @@ function SimilarityBar({ score }: { score: number }) {
   );
 }
 
-function MemoryCard({ result }: { result: MemoryResult }) {
+function MemoryCard({ result, onDelete }: { result: MemoryResult; onDelete: (id: string) => void }) {
   const [expanded, setExpanded] = useState(false);
   const isDecisionRecord = result.memory_type === 'DECISION_RECORD';
 
   return (
-    <div className={`rounded-2xl border bg-slate-900/80 overflow-hidden transition-all ${
+    <div className={`rounded-2xl border bg-slate-900/80 overflow-hidden transition-all relative ${
       isDecisionRecord ? 'border-amber-500/40 shadow-amber-500/10 shadow-xl' : 'border-slate-800'
     }`}>
       {isDecisionRecord && (
-        <div className="bg-amber-500/15 border-b border-amber-500/30 px-6 py-2.5 flex items-center gap-2">
-          <Icon name="coordinator" size={16} className="text-amber-400" />
-          <span className="text-amber-300 text-xs font-extrabold tracking-wider uppercase">Decision Record — Memory Influenced Recommendation</span>
+        <div className="bg-amber-500/15 border-b border-amber-500/30 px-6 py-2.5 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Icon name="coordinator" size={16} className="text-amber-400" />
+            <span className="text-amber-300 text-xs font-extrabold tracking-wider uppercase">Decision Record — Memory Influenced Recommendation</span>
+          </div>
+          <button
+            onClick={() => onDelete(result.id)}
+            className="p-1 rounded bg-red-500/10 border border-red-500/30 text-red-400 hover:bg-red-500/20 text-xs font-mono font-bold"
+            title="Delete Memory"
+          >
+            🗑️ Delete Memory
+          </button>
         </div>
       )}
 
       <div className="p-6 space-y-4">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <MemoryTypeBadge type={result.memory_type} />
-          <SimilarityBar score={result.similarity_score} />
+          <div className="flex items-center gap-3">
+            <SimilarityBar score={result.similarity_score} />
+            {!isDecisionRecord && (
+              <button
+                onClick={() => onDelete(result.id)}
+                className="p-1 px-2 rounded bg-red-500/10 border border-red-500/30 text-red-400 hover:bg-red-500/20 text-xs font-mono font-bold"
+                title="Delete Memory"
+              >
+                🗑️ Delete
+              </button>
+            )}
+          </div>
         </div>
 
         <p className={`text-base text-slate-100 font-normal leading-relaxed ${!expanded && 'line-clamp-4'}`}>
@@ -168,6 +188,12 @@ export default function MemoryExplorerPage() {
   const [error, setError] = useState<string | null>(null);
   const [activeTypeFilter, setActiveTypeFilter] = useState<string | null>(null);
 
+  // Modal State for Memory Creation
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [newType, setNewType] = useState('LESSON_LEARNED');
+  const [newContent, setNewContent] = useState('');
+  const [isCreating, setIsCreating] = useState(false);
+
   const handleSearch = useCallback(async (searchQuery: string) => {
     if (!searchQuery.trim() || !token) return;
     setIsSearching(true);
@@ -184,6 +210,50 @@ export default function MemoryExplorerPage() {
       setIsSearching(false);
     }
   }, [token]);
+
+  const loadAllMemories = useCallback(async () => {
+    if (!token) return;
+    setIsSearching(true);
+    setError(null);
+    setHasSearched(true);
+    try {
+      const result = await memoryApi.list();
+      setResults(result.data as MemoryResult[]);
+    } catch (err) {
+      console.error('Failed to load memories', err);
+    } finally {
+      setIsSearching(false);
+    }
+  }, [token]);
+
+  const handleDeleteMemory = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this memory vector record?')) return;
+    try {
+      await memoryApi.delete(id);
+      setResults(prev => prev.filter(r => r.id !== id));
+    } catch (err) {
+      alert('Failed to delete memory record.');
+    }
+  };
+
+  const handleCreateMemory = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newContent.trim()) return;
+    setIsCreating(true);
+    try {
+      await memoryApi.create({
+        memory_type: newType,
+        content: newContent,
+      });
+      setIsCreateOpen(false);
+      setNewContent('');
+      loadAllMemories();
+    } catch (err) {
+      alert('Failed to create memory entry.');
+    } finally {
+      setIsCreating(false);
+    }
+  };
 
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -209,6 +279,23 @@ export default function MemoryExplorerPage() {
       subtitle="1024-dimensional semantic vector search over all disaster response histories"
     >
       <div className="max-w-5xl mx-auto space-y-8 font-body">
+
+        {/* Action Header */}
+        <div className="flex items-center justify-between bg-slate-900/60 p-4 rounded-2xl border border-slate-800">
+          <button
+            onClick={loadAllMemories}
+            className="text-xs font-mono font-bold text-slate-300 hover:text-[#9AF376] flex items-center gap-1.5"
+          >
+            📋 Browse All Memories (Latest 50)
+          </button>
+
+          <button
+            onClick={() => setIsCreateOpen(true)}
+            className="rounded-xl bg-[#9AF376] px-4 py-2 text-xs font-extrabold text-slate-950 hover:brightness-110 shadow-[0_0_15px_rgba(154,243,118,0.2)]"
+          >
+            + Record New Memory Entry
+          </button>
+        </div>
 
         {/* ── Search bar ───────────────────────────────────────────── */}
         <form onSubmit={onSubmit} className="relative">
@@ -318,16 +405,74 @@ export default function MemoryExplorerPage() {
 
             {filteredResults.length === 0 ? (
               <div className="rounded-2xl border border-slate-800 bg-slate-900/40 p-12 text-center text-slate-400 text-base">
-                No matching memories for &quot;{query}&quot;
+                No matching memories found.
               </div>
             ) : (
               <div className="space-y-5">
-                {filteredResults.map(r => <MemoryCard key={r.id} result={r} />)}
+                {filteredResults.map(r => <MemoryCard key={r.id} result={r} onDelete={handleDeleteMemory} />)}
               </div>
             )}
           </div>
         )}
+
+        {/* Create Memory Modal */}
+        {isCreateOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-sm p-4">
+            <div className="w-full max-w-lg rounded-2xl border border-slate-800 bg-slate-900 p-6 space-y-5 shadow-2xl">
+              <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                <h3 className="text-base font-extrabold text-slate-100 font-mono">Inject Vector Memory Record</h3>
+                <button onClick={() => setIsCreateOpen(false)} className="text-slate-400 hover:text-slate-100 font-bold">✕</button>
+              </div>
+
+              <form onSubmit={handleCreateMemory} className="space-y-4">
+                <div>
+                  <label className="block text-xs font-bold font-mono uppercase text-slate-300 mb-1">Memory Type</label>
+                  <select
+                    value={newType}
+                    onChange={e => setNewType(e.target.value)}
+                    className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3.5 py-2.5 text-sm text-slate-100 font-mono focus:outline-none"
+                  >
+                    {Object.keys(MEMORY_TYPE_META).map(t => (
+                      <option key={t} value={t}>{t}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold font-mono uppercase text-slate-300 mb-1">Memory Context & Lessons Learned</label>
+                  <textarea
+                    rows={4}
+                    required
+                    value={newContent}
+                    onChange={e => setNewContent(e.target.value)}
+                    placeholder="Describe the operational decision, road condition, or tactical outcome..."
+                    className="w-full rounded-xl border border-slate-700 bg-slate-950 p-3.5 text-sm text-slate-100 placeholder-slate-500 focus:outline-none font-mono"
+                  />
+                </div>
+
+                <div className="flex items-center justify-end gap-3 pt-2 border-t border-slate-800">
+                  <button
+                    type="button"
+                    onClick={() => setIsCreateOpen(false)}
+                    className="px-4 py-2 text-xs font-bold text-slate-400 hover:text-slate-200"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isCreating}
+                    className="rounded-xl bg-[#9AF376] px-5 py-2 text-xs font-extrabold text-slate-950 hover:brightness-110 disabled:opacity-50"
+                  >
+                    {isCreating ? 'Embedding Vector...' : 'Save & Generate Vector'}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
       </div>
     </AppShell>
   );
 }
+

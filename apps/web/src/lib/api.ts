@@ -218,6 +218,8 @@ export const incidentsApi = {
 
   getTimeline: (id: string) => api.get<any>(`/incidents/${id}/agent-timeline`),
 
+  delete: (id: string) => api.delete<any>(`/incidents/${id}`),
+
   exportReport: (id: string) => api.download(`/analytics/incidents/${id}/export-report`, `AfterActionReport_${id.slice(0, 8)}.txt`),
 };
 
@@ -231,7 +233,15 @@ export const analyticsApi = {
 export const memoryApi = {
   search: (query: string, limit = 10) =>
     api.post<any[]>('/memories/search', { query, limit }),
+
+  list: () => api.get<any[]>('/memories/'),
+
+  create: (payload: { memory_type: string; content: string; incident_id?: string; metadata_json?: any }) =>
+    api.post<any>('/memories/', payload),
+
+  delete: (id: string) => api.delete<any>(`/memories/${id}`),
 };
+
 
 export const telemetryApi = {
   auditLogs: (limit = 50) => api.get<any[]>(`/telemetry/audit-logs?limit=${limit}`),

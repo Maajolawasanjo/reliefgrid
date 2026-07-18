@@ -48,6 +48,78 @@ def vector_search_memories(
                 "created_at": memory.created_at.isoformat()
             })
 
-    # Sort by descending similarity score
-    results.sort(key=lambda x: x["similarity_score"], reverse=True)
-    return results[:payload.limit]
+class MemoryCreate(BaseModel):
+    memory_type: str
+    content: str
+    incident_id: Optional[str] = None
+    metadata_json: Optional[Dict[str, Any]] = None
+
+@router.post("/", status_code=status.HTTP_201_CREATED)
+def create_memory(
+    payload: MemoryCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    import uuid
+    mem = Memory(
+        id=str(uuid.uuid4()),
+        incident_id=payload.incident_id,
+        memory_type=payload.memory_type,
+        content=payload.content,
+        metadata_json=payload.metadata_json or {"source": "manual_entry", "author": current_user.email}
+    )
+    db.add(mem)
+    db.flush()
+
+    vector = embedding_service.generate_embedding(payload.content)
+    mv = MemoryVector(
+        id=str(uuid.uuid4()),
+        memory_id=mem.id,
+        dimension=len(vector),
+        embedding={"vec": vector}
+    )
+    db.add(mv)
+    db.commit()
+    db.refresh(mem)
+    return {
+        "id": mem.id,
+        "memory_type": mem.memory_type,
+        "content": mem.content,
+        "incident_id": mem.incident_id,
+        "created_at": mem.created_at.isoformat()
+    }
+
+@router.get("/")
+def list_memories(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    memories = db.query(Memory).order_by(Memory.created_at.desc()).limit(50).all()
+    results = []
+    for m in memories:
+        results.append({
+            "id": m.id,
+            "incident_id": m.incident_id,
+            "memory_type": m.memory_type,
+            "content": m.content,
+            "similarity_score": 1.0,
+            "metadata": m.metadata_json or {},
+            "created_at": m.created_at.isoformat()
+        })
+    return results
+
+@router.delete("/{memory_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_memory(
+    memory_id: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    mem = db.query(Memory).filter(Memory.id == memory_id).first()
+    if not mem:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Memory not found")
+    
+    db.query(MemoryVector).filter(MemoryVector.memory_id == memory_id).delete()
+    db.delete(mem)
+    db.commit()
+    return None
+
