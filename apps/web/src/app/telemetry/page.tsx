@@ -101,11 +101,12 @@ export default function TelemetryPage() {
             <Icon name="telemetry" size={14} /> Run Watchdog Self-Healing Scan
           </button>
           <button
-            onClick={() => router.push('/')}
+            onClick={() => router.push('/incidents')}
             className="rounded-lg border border-slate-700 px-4 py-2 text-xs font-semibold text-slate-300 hover:bg-slate-800"
           >
-            ← Return to Dashboard
+            ← Return to Incidents Dashboard
           </button>
+
         </div>
       </header>
 
