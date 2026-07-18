@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { useAuth } from '@/lib/auth-context';
 import { useRouter } from 'next/navigation';
 import { env } from '@/lib/config';
@@ -86,7 +87,10 @@ export default function TelemetryPage() {
     <div className="min-h-screen bg-slate-950 p-8 text-slate-100">
       <header className="flex items-center justify-between border-b border-slate-800 pb-6 mb-8">
         <div className="flex items-center gap-4">
-          <FullLogo iconSize="h-12 w-12" textClass="text-2xl" subtitle={false} />
+          <Link href="/incidents" title="Return to Emergency Command Center">
+            <FullLogo iconSize="h-12 w-12" textClass="text-2xl" subtitle={false} />
+          </Link>
+
           <div className="h-8 w-[1px] bg-slate-800" />
           <div>
             <h1 className="text-lg font-bold text-slate-200">System Telemetry & Operations Panel</h1>
