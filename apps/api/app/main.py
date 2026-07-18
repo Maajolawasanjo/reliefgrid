@@ -20,6 +20,15 @@ app = FastAPI(
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
+@app.on_event("startup")
+def on_startup():
+    try:
+        from database.seeds.seed_auth import seed_initial_auth
+        seed_initial_auth()
+        print("✅ Startup auth seed check completed successfully.")
+    except Exception as e:
+        print(f"⚠️ Startup seed notice: {e}")
+
 # CORS
 if settings.CORS_ORIGINS:
     app.add_middleware(
